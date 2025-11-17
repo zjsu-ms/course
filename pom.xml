@@ -14,12 +14,12 @@
 
     <groupId>com.zjgsu</groupId>
     <artifactId>course</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>Course Management System</name>
     <description>A monolithic course management system for educational purposes</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>24</java.version>
     </properties>
 
     <dependencies>

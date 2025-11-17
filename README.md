@@ -9,6 +9,7 @@
 - [项目结构](#项目结构)
 - [环境准备](#环境准备)
 - [快速开始](#快速开始)
+- [Docker部署](#docker部署)
 - [详细运行步骤](#详细运行步骤)
 - [API文档](#api文档)
 - [测试API](#测试api)
@@ -153,6 +154,128 @@ cd projects/course
 浏览器访问：http://localhost:8080/api/courses
 
 如果看到JSON格式的课程列表，说明启动成功！
+
+---
+
+## Docker部署
+
+### 前置要求
+
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### 快速启动
+
+```bash
+# 1. 进入项目目录
+cd projects/course
+
+# 2. 构建并启动所有服务
+docker compose up -d
+
+# 3. 查看服务状态
+docker compose ps
+
+# 4. 查看应用日志
+docker compose logs -f app
+```
+
+### 访问应用
+
+- 应用服务：http://localhost:8080/api/courses
+- MySQL数据库：localhost:3306
+  - 用户名：courseuser
+  - 密码：coursepass
+  - 数据库：course_db
+
+### Docker命令
+
+```bash
+# 构建镜像
+docker compose build
+
+# 启动服务
+docker compose up -d
+
+# 查看服务状态
+docker compose ps
+
+# 查看日志
+docker compose logs -f app
+docker compose logs -f mysql
+
+# 停止服务
+docker compose down
+
+# 停止服务并删除数据卷（谨慎使用）
+docker compose down -v
+
+# 重启服务
+docker compose restart
+
+# 进入应用容器
+docker exec -it coursehub-app bash
+
+# 进入MySQL容器
+docker exec -it coursehub-mysql bash
+```
+
+### 数据持久化
+
+项目使用Docker命名卷来持久化MySQL数据：
+
+- 卷名：`coursehub_mysql-data`
+- 挂载点：`/var/lib/mysql`
+
+即使容器被删除，数据也会保留。使用 `docker compose down -v` 才会删除数据卷。
+
+### 网络配置
+
+- 网络名称：`coursehub-network`
+- 网络驱动：bridge
+- 应用通过服务名 `mysql` 访问数据库
+
+### 镜像优化
+
+项目使用多阶段构建优化镜像大小：
+
+- 构建阶段：`maven:3.9-eclipse-temurin-25`
+- 运行阶段：`eclipse-temurin:25-jre`
+- 最终镜像大小：< 200MB
+
+### 故障排查
+
+**问题：应用无法连接数据库**
+
+解决方法：
+
+```bash
+# 1. 检查MySQL容器是否健康
+docker compose ps
+
+# 2. 查看MySQL日志
+docker compose logs mysql
+
+# 3. 确认网络连接
+docker network inspect coursehub-network
+
+# 4. 进入应用容器测试连接
+docker exec -it coursehub-app bash
+ping mysql
+```
+
+**问题：数据在重启后丢失**
+
+确保使用 `docker compose down` 而不是 `docker compose down -v`
+
+**问题：端口冲突**
+
+修改 `docker-compose.yml` 中的端口映射：
+
+```yaml
+ports:
+  - "8081:8080"  # 使用8081代替8080
+```
 
 ---
 
