@@ -1,105 +1,43 @@
 package com.zjgsu.course.repository;
 
 import com.zjgsu.course.model.Course;
-import com.zjgsu.course.model.Instructor;
-import com.zjgsu.course.model.ScheduleSlot;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
 
 /**
  * 课程数据访问层
- * 使用内存存储简化实现
  */
 @Repository
-public class CourseRepository {
-
-    private final Map<String, Course> courses = new ConcurrentHashMap<>();
-
-    public CourseRepository() {
-        // 初始化示例数据
-        initSampleData();
-    }
-
-    private void initSampleData() {
-        // 创建示例课程
-        Course course1 = new Course(
-                "CS101",
-                "计算机科学导论",
-                new Instructor("T001", "张教授", "zhang@zjgsu.edu.cn"),
-                new ScheduleSlot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0), 50),
-                60
-        );
-
-        Course course2 = new Course(
-                "CS202",
-                "数据结构与算法",
-                new Instructor("T002", "李教授", "li@zjgsu.edu.cn"),
-                new ScheduleSlot(DayOfWeek.WEDNESDAY, LocalTime.of(14, 0), LocalTime.of(16, 0), 45),
-                50
-        );
-
-        Course course3 = new Course(
-                "CS303",
-                "操作系统原理",
-                new Instructor("T003", "王教授", "wang@zjgsu.edu.cn"),
-                new ScheduleSlot(DayOfWeek.FRIDAY, LocalTime.of(10, 0), LocalTime.of(12, 0), 40),
-                45
-        );
-
-        courses.put(course1.getId(), course1);
-        courses.put(course2.getId(), course2);
-        courses.put(course3.getId(), course3);
-    }
-
-    /**
-     * 查找所有课程
-     */
-    public List<Course> findAll() {
-        return new ArrayList<>(courses.values());
-    }
-
-    /**
-     * 根据ID查找课程
-     */
-    public Course findById(String id) {
-        return courses.get(id);
-    }
+public interface CourseRepository extends JpaRepository<Course, String> {
 
     /**
      * 根据课程代码查找课程
      */
-    public Course findByCode(String code) {
-        return courses.values().stream()
-                .filter(course -> course.getCode().equals(code))
-                .findFirst()
-                .orElse(null);
-    }
+    Optional<Course> findByCode(String code);
 
     /**
-     * 保存课程
+     * 根据授课教师ID查询课程
      */
-    public Course save(Course course) {
-        courses.put(course.getId(), course);
-        return course;
-    }
+    @Query("SELECT c FROM Course c WHERE c.instructor.id = :instructorId")
+    List<Course> findByInstructorId(String instructorId);
 
     /**
-     * 删除课程
+     * 查找有剩余容量的课程
      */
-    public void delete(String id) {
-        courses.remove(id);
-    }
+    @Query("SELECT c FROM Course c WHERE c.enrolled < c.capacity")
+    List<Course> findAvailableCourses();
 
     /**
-     * 检查课程是否存在
+     * 按标题关键字模糊查询
      */
-    public boolean exists(String id) {
-        return courses.containsKey(id);
-    }
+    List<Course> findByTitleContaining(String keyword);
+
+    /**
+     * 检查课程代码是否存在
+     */
+    boolean existsByCode(String code);
 }

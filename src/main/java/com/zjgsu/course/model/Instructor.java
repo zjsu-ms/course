@@ -1,11 +1,13 @@
 package com.zjgsu.course.model;
 
+import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 /**
  * 教师实体类
  */
+@Embeddable
 public class Instructor {
     @NotBlank(message = "Instructor ID is required")
     private String id;

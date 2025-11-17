@@ -6,6 +6,7 @@ import com.zjgsu.course.model.Enrollment;
 import com.zjgsu.course.repository.CourseRepository;
 import com.zjgsu.course.repository.EnrollmentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * 选课业务逻辑层
  */
 @Service
+@Transactional
 public class EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
@@ -35,10 +37,8 @@ public class EnrollmentService {
         }
 
         // 检查课程是否存在
-        Course course = courseRepository.findById(courseId);
-        if (course == null) {
-            throw new ResourceNotFoundException("Course not found with id: " + courseId);
-        }
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with id: " + courseId));
 
         // 检查是否已选过该课程
         if (enrollmentRepository.existsByCourseIdAndStudentId(courseId, studentId)) {
@@ -65,24 +65,24 @@ public class EnrollmentService {
      * 学生退课
      */
     public void withdraw(String enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId);
-        if (enrollment == null) {
-            throw new RuntimeException("Enrollment not found with id: " + enrollmentId);
-        }
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found with id: " + enrollmentId));
 
         // 减少课程的选课人数
-        Course course = courseRepository.findById(enrollment.getCourseId());
+        Course course = courseRepository.findById(enrollment.getCourseId())
+                .orElse(null);
         if (course != null) {
             course.setEnrolled(course.getEnrolled() - 1);
             courseRepository.save(course);
         }
 
-        enrollmentRepository.delete(enrollmentId);
+        enrollmentRepository.deleteById(enrollmentId);
     }
 
     /**
      * 获取所有选课记录
      */
+    @Transactional(readOnly = true)
     public List<Enrollment> getAllEnrollments() {
         return enrollmentRepository.findAll();
     }
@@ -90,6 +90,7 @@ public class EnrollmentService {
     /**
      * 根据课程ID获取选课记录
      */
+    @Transactional(readOnly = true)
     public List<Enrollment> getEnrollmentsByCourse(String courseId) {
         return enrollmentRepository.findByCourseId(courseId);
     }
@@ -97,6 +98,7 @@ public class EnrollmentService {
     /**
      * 根据学生ID获取选课记录
      */
+    @Transactional(readOnly = true)
     public List<Enrollment> getEnrollmentsByStudent(String studentId) {
         return enrollmentRepository.findByStudentId(studentId);
     }
@@ -104,11 +106,9 @@ public class EnrollmentService {
     /**
      * 根据ID获取选课记录
      */
+    @Transactional(readOnly = true)
     public Enrollment getEnrollmentById(String id) {
-        Enrollment enrollment = enrollmentRepository.findById(id);
-        if (enrollment == null) {
-            throw new RuntimeException("Enrollment not found with id: " + id);
-        }
-        return enrollment;
+        return enrollmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found with id: " + id));
     }
 }

@@ -3,6 +3,7 @@ package com.zjgsu.course.service;
 import com.zjgsu.course.model.Course;
 import com.zjgsu.course.repository.CourseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * 课程业务逻辑层
  */
 @Service
+@Transactional
 public class CourseService {
 
     private final CourseRepository courseRepository;
@@ -21,6 +23,7 @@ public class CourseService {
     /**
      * 获取所有课程
      */
+    @Transactional(readOnly = true)
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
     }
@@ -28,23 +31,19 @@ public class CourseService {
     /**
      * 根据ID获取课程
      */
+    @Transactional(readOnly = true)
     public Course getCourseById(String id) {
-        Course course = courseRepository.findById(id);
-        if (course == null) {
-            throw new RuntimeException("Course not found with id: " + id);
-        }
-        return course;
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
     }
 
     /**
      * 根据课程代码获取课程
      */
+    @Transactional(readOnly = true)
     public Course getCourseByCode(String code) {
-        Course course = courseRepository.findByCode(code);
-        if (course == null) {
-            throw new RuntimeException("Course not found with code: " + code);
-        }
-        return course;
+        return courseRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Course not found with code: " + code));
     }
 
     /**
@@ -52,7 +51,7 @@ public class CourseService {
      */
     public Course createCourse(Course course) {
         // 检查课程代码是否已存在
-        if (courseRepository.findByCode(course.getCode()) != null) {
+        if (courseRepository.existsByCode(course.getCode())) {
             throw new RuntimeException("Course with code " + course.getCode() + " already exists");
         }
         return courseRepository.save(course);
@@ -62,7 +61,7 @@ public class CourseService {
      * 更新课程
      */
     public Course updateCourse(String id, Course course) {
-        if (!courseRepository.exists(id)) {
+        if (!courseRepository.existsById(id)) {
             throw new RuntimeException("Course not found with id: " + id);
         }
         course.setId(id);
@@ -73,16 +72,17 @@ public class CourseService {
      * 删除课程
      */
     public void deleteCourse(String id) {
-        if (!courseRepository.exists(id)) {
+        if (!courseRepository.existsById(id)) {
             throw new RuntimeException("Course not found with id: " + id);
         }
-        courseRepository.delete(id);
+        courseRepository.deleteById(id);
     }
 
     /**
      * 检查课程是否存在
      */
+    @Transactional(readOnly = true)
     public boolean courseExists(String id) {
-        return courseRepository.exists(id);
+        return courseRepository.existsById(id);
     }
 }

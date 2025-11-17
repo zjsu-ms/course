@@ -1,5 +1,8 @@
 package com.zjgsu.course.model;
 
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,8 +12,10 @@ import java.time.LocalTime;
 /**
  * 课程时间安排实体类
  */
+@Embeddable
 public class ScheduleSlot {
     @NotNull(message = "Day of week is required")
+    @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
     @NotNull(message = "Start time is required")
