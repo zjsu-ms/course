@@ -1,5 +1,6 @@
 package com.zjgsu.course.service;
 
+import com.zjgsu.course.exception.ResourceNotFoundException;
 import com.zjgsu.course.model.Course;
 import com.zjgsu.course.model.Enrollment;
 import com.zjgsu.course.repository.CourseRepository;
@@ -30,13 +31,13 @@ public class EnrollmentService {
     public Enrollment enroll(String courseId, String studentId) {
         // 检查学生是否存在
         if (!studentService.getStudentById(studentId).isPresent()) {
-            throw new IllegalArgumentException("Student not found with id: " + studentId);
+            throw new ResourceNotFoundException("Student not found with id: " + studentId);
         }
 
         // 检查课程是否存在
         Course course = courseRepository.findById(courseId);
         if (course == null) {
-            throw new RuntimeException("Course not found with id: " + courseId);
+            throw new ResourceNotFoundException("Course not found with id: " + courseId);
         }
 
         // 检查是否已选过该课程

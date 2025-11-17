@@ -92,19 +92,27 @@ public class StudentController {
     public ResponseEntity<Map<String, Object>> updateStudent(
             @PathVariable String id,
             @Valid @RequestBody Student student) {
-        Optional<Student> updated = studentService.updateStudent(id, student);
-        Map<String, Object> response = new HashMap<>();
+        try {
+            Optional<Student> updated = studentService.updateStudent(id, student);
+            Map<String, Object> response = new HashMap<>();
 
-        if (updated.isPresent()) {
-            response.put("code", 200);
-            response.put("message", "Student updated successfully");
-            response.put("data", updated.get());
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("code", 404);
-            response.put("message", "Student not found with id: " + id);
+            if (updated.isPresent()) {
+                response.put("code", 200);
+                response.put("message", "Student updated successfully");
+                response.put("data", updated.get());
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("code", 404);
+                response.put("message", "Student not found with id: " + id);
+                response.put("data", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 400);
+            response.put("message", e.getMessage());
             response.put("data", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
@@ -114,19 +122,27 @@ public class StudentController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteStudent(@PathVariable String id) {
-        boolean deleted = studentService.deleteStudent(id);
-        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean deleted = studentService.deleteStudent(id);
+            Map<String, Object> response = new HashMap<>();
 
-        if (deleted) {
-            response.put("code", 200);
-            response.put("message", "Student deleted successfully");
+            if (deleted) {
+                response.put("code", 200);
+                response.put("message", "Student deleted successfully");
+                response.put("data", null);
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("code", 404);
+                response.put("message", "Student not found with id: " + id);
+                response.put("data", null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (RuntimeException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 400);
+            response.put("message", e.getMessage());
             response.put("data", null);
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("code", 404);
-            response.put("message", "Student not found with id: " + id);
-            response.put("data", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 }

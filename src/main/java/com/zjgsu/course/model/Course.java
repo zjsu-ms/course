@@ -1,5 +1,10 @@
 package com.zjgsu.course.model;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
 /**
@@ -7,11 +12,25 @@ import java.util.UUID;
  */
 public class Course {
     private String id;
+
+    @NotBlank(message = "Course code is required")
     private String code;          // 课程代码，如 CS101
+
+    @NotBlank(message = "Course title is required")
     private String title;          // 课程标题
+
+    @NotNull(message = "Instructor is required")
+    @Valid
     private Instructor instructor; // 授课教师
+
+    @NotNull(message = "Schedule is required")
+    @Valid
     private ScheduleSlot schedule; // 上课时间安排
+
+    @NotNull(message = "Capacity is required")
+    @Min(value = 1, message = "Capacity must be at least 1")
     private Integer capacity;      // 容量（最大学生数）
+
     private Integer enrolled;      // 已选课学生数
 
     public Course() {

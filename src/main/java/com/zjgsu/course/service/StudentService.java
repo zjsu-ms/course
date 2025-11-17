@@ -1,6 +1,7 @@
 package com.zjgsu.course.service;
 
 import com.zjgsu.course.model.Student;
+import com.zjgsu.course.repository.EnrollmentRepository;
 import com.zjgsu.course.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class StudentService {
 
     private final StudentRepository studentRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository, EnrollmentRepository enrollmentRepository) {
         this.studentRepository = studentRepository;
+        this.enrollmentRepository = enrollmentRepository;
     }
 
     /**
@@ -58,6 +61,13 @@ public class StudentService {
         if (!studentRepository.exists(id)) {
             return Optional.empty();
         }
+
+        // 检查studentId是否与其他学生重复
+        Student existingWithSameStudentId = studentRepository.findByStudentId(student.getStudentId());
+        if (existingWithSameStudentId != null && !existingWithSameStudentId.getId().equals(id)) {
+            throw new RuntimeException("Student with studentId " + student.getStudentId() + " already exists");
+        }
+
         student.setId(id);
         return Optional.of(studentRepository.save(student));
     }
@@ -69,6 +79,12 @@ public class StudentService {
         if (!studentRepository.exists(id)) {
             return false;
         }
+
+        // 检查学生是否有活跃的选课记录
+        if (!enrollmentRepository.findByStudentId(id).isEmpty()) {
+            throw new RuntimeException("无法删除：该学生存在选课记录");
+        }
+
         studentRepository.delete(id);
         return true;
     }

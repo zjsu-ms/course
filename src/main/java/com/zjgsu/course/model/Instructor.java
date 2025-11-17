@@ -1,11 +1,20 @@
 package com.zjgsu.course.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * 教师实体类
  */
 public class Instructor {
+    @NotBlank(message = "Instructor ID is required")
     private String id;
+
+    @NotBlank(message = "Instructor name is required")
     private String name;
+
+    @NotBlank(message = "Instructor email is required")
+    @Email(message = "Instructor email should be valid")
     private String email;
 
     public Instructor() {

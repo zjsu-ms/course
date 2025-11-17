@@ -1,5 +1,9 @@
 package com.zjgsu.course.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -8,11 +12,23 @@ import java.util.UUID;
  */
 public class Student {
     private String id;
+
+    @NotBlank(message = "Student ID is required")
     private String studentId;     // 学号，如 2024001
+
+    @NotBlank(message = "Name is required")
     private String name;          // 姓名
+
+    @NotBlank(message = "Major is required")
     private String major;         // 专业
+
+    @NotNull(message = "Grade is required")
     private Integer grade;        // 年级，如 2024
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
     private String email;         // 邮箱
+
     private LocalDateTime createdAt; // 创建时间
 
     public Student() {

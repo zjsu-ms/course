@@ -1,5 +1,8 @@
 package com.zjgsu.course.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -7,9 +10,17 @@ import java.time.LocalTime;
  * 课程时间安排实体类
  */
 public class ScheduleSlot {
+    @NotNull(message = "Day of week is required")
     private DayOfWeek dayOfWeek;
+
+    @NotNull(message = "Start time is required")
     private LocalTime startTime;
+
+    @NotNull(message = "End time is required")
     private LocalTime endTime;
+
+    @NotNull(message = "Expected attendance is required")
+    @Min(value = 1, message = "Expected attendance must be at least 1")
     private Integer expectedAttendance;
 
     public ScheduleSlot() {

@@ -1,5 +1,6 @@
 package com.zjgsu.course.controller;
 
+import com.zjgsu.course.exception.ResourceNotFoundException;
 import com.zjgsu.course.model.Enrollment;
 import com.zjgsu.course.service.EnrollmentService;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,12 @@ public class EnrollmentController {
             response.put("message", "Enrolled successfully");
             response.put("data", enrollment);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (ResourceNotFoundException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 404);
+            response.put("message", e.getMessage());
+            response.put("data", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (RuntimeException e) {
             Map<String, Object> response = new HashMap<>();
             response.put("code", 400);
