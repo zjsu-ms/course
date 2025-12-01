@@ -164,14 +164,33 @@ cd projects/course
 - Docker 20.10+
 - Docker Compose 2.0+
 
-### 快速启动
+### 方式一：使用启动脚本（推荐）
+
+```bash
+# 1. 进入项目目录
+cd projects/course
+
+# 2. 赋予执行权限（首次运行需要）
+chmod +x run.sh
+
+# 3. 一键构建并启动
+./run.sh
+```
+
+脚本会自动完成：
+- 编译项目
+- 构建 Docker 镜像
+- 启动所有服务
+- 显示服务状态和访问地址
+
+### 方式二：手动启动
 
 ```bash
 # 1. 进入项目目录
 cd projects/course
 
 # 2. 构建并启动所有服务
-docker compose up -d
+docker compose up -d --build
 
 # 3. 查看服务状态
 docker compose ps

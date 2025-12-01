@@ -23,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: course-app:1.2.0
     container_name: course-app
     ports:
       - "8080:8080"
